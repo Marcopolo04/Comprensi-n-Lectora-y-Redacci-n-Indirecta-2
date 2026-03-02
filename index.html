@@ -3,446 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exani II - Comprensión Lectora Literatura Universal y Mexicana</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>Simulador Oficial EXANI-II | 25 Reactivos</title>
+    <link href="https://fonts.googleapis.com" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Playfair+Display:wght@700&display=swap');
-        
-        body {
-            font-family: 'Inter', system_ui, sans-serif;
-        }
-        .title-font {
-            font-family: 'Playfair Display', serif;
-        }
-        .question-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .question-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-        }
-        .option-label {
-            transition: all 0.2s ease;
-        }
-        .option-label:hover {
-            background-color: #f8fafc;
-        }
-        .progress-bar {
-            transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
+        :root { --primary: #004b93; --secondary: #00a1e4; --accent: #ff6600; --bg: #f4f7f9; }
+        body { font-family: 'Montserrat', sans-serif; background: var(--bg); margin: 0; padding: 10px; }
+        .container { max-width: 850px; margin: 20px auto; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background: var(--primary); color: white; padding: 20px; text-align: center; position: relative; }
+        #timer { position: absolute; right: 20px; top: 25px; background: rgba(0,0,0,0.3); padding: 5px 12px; border-radius: 20px; font-weight: bold; font-family: monospace; }
+        .progress-container { background: #e0e0e0; height: 8px; }
+        #progress-bar { background: var(--secondary); height: 100%; width: 0%; transition: 0.4s; }
+        .quiz-body, .form-body { padding: 25px; }
+        .badge { padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-bottom: 15px; display: inline-block; text-transform: uppercase; }
+        .comprension { background: #e3f2fd; color: #0d47a1; }
+        .redaccion { background: #fff3e0; color: #e65100; }
+        .lectura-box { background: #fafafa; border: 1px solid #eee; padding: 20px; border-radius: 8px; line-height: 1.6; margin-bottom: 20px; font-size: 15px; white-space: pre-line; max-height: 300px; overflow-y: auto; }
+        .opcion { border: 2px solid #edeff2; padding: 12px 15px; border-radius: 8px; cursor: pointer; transition: 0.2s; margin-bottom: 8px; }
+        .opcion.active { border-color: var(--primary); background: #e3f2fd; font-weight: 600; }
+        .btn { background: var(--accent); color: white; border: none; padding: 15px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; width: 100%; transition: 0.3s; }
+        input { width: 100%; box-sizing: border-box; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 6px; font-family: inherit; }
+        #quiz-ui, #results { display: none; }
+        .retro-card { border-left: 5px solid #ccc; padding: 15px; margin-bottom: 15px; background: #fff; border-bottom: 1px solid #eee; }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
-    <div class="max-w-4xl mx-auto">
-        <!-- HEADER -->
-        <header class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
-            <div class="px-6 py-5 flex items-center justify-between">
-                <div class="flex items-center gap-x-3">
-                    <div class="w-11 h-11 bg-blue-600 rounded-2xl flex items-center justify-center text-white text-3xl font-bold title-font">CL</div>
-                    <div>
-                        <h1 class="text-2xl font-bold text-slate-800 title-font tracking-tight">Comprensión Lectora</h1>
-                        <p class="text-xs text-slate-500 -mt-1">15 Ejercicios • Tipo Ceneval Exani II</p>
-                    </div>
-                </div>
-                <div id="progress-header" class="hidden items-center gap-x-4 text-sm">
-                    <span id="current-exercise-header" class="font-semibold text-blue-700">Ejercicio 1/15</span>
-                    <div class="h-2 w-48 bg-slate-200 rounded-full overflow-hidden">
-                        <div id="progress-bar-header" class="progress-bar h-2 bg-blue-600 rounded-full w-1/15"></div>
-                    </div>
-                </div>
-            </div>
-        </header>
+<body>
 
-        <!-- START SCREEN -->
-        <div id="start-screen" class="min-h-[calc(100vh-73px)] flex items-center justify-center px-6">
-            <div class="max-w-xl text-center">
-                <div class="inline-flex items-center gap-x-2 bg-blue-100 text-blue-700 px-5 py-2 rounded-3xl text-sm font-medium mb-6">
-                    <i class="fa-solid fa-book-open"></i>
-                    <span>Literatura Universal y Mexicana</span>
-                </div>
-                
-                <h2 class="text-5xl title-font font-bold text-slate-800 leading-tight mb-4">
-                    15 Ejercicios de<br>Comprensión Lectora
-                </h2>
-                <p class="text-lg text-slate-600 mb-10 max-w-md mx-auto">
-                    Basado en el documento "Comprension Lectora Ms 2.pdf".<br>
-                    Responde las 3 preguntas por ejercicio (45 en total).<br>
-                    <span class="font-semibold text-emerald-600">Al finalizar recibirás retroalimentación detallada</span>
-                </p>
-                
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <button onclick="startQuiz()" 
-                            class="px-10 py-5 bg-blue-600 hover:bg-blue-700 text-white rounded-3xl font-semibold text-lg flex items-center justify-center gap-x-3 shadow-lg shadow-blue-200 transition-all active:scale-95">
-                        <i class="fa-solid fa-play"></i>
-                        INICIAR INSTRUMENTO
-                    </button>
-                    
-                    <button onclick="window.location.reload()" 
-                            class="px-8 py-5 border border-slate-300 hover:border-slate-400 rounded-3xl font-medium text-slate-700 flex items-center gap-x-2">
-                        <i class="fa-solid fa-rotate"></i>
-                        Reiniciar
-                    </button>
-                </div>
-                
-                <div class="mt-12 text-xs text-slate-400 flex items-center justify-center gap-x-8">
-                    <div class="flex items-center gap-x-2">
-                        <i class="fa-solid fa-check-circle"></i>
-                        <span>45 preguntas</span>
-                    </div>
-                    <div class="flex items-center gap-x-2">
-                        <i class="fa-solid fa-clock"></i>
-                        <span>~45 minutos</span>
-                    </div>
-                    <div class="flex items-center gap-x-2">
-                        <i class="fa-solid fa-graduation-cap"></i>
-                        <span>Estilo Exani II</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="container">
+    <div class="header">
+        <h2 id="title-main" style="margin:0; font-size: 18px;">Registro de Aspirante</h2>
+        <div id="timer">40:00</div>
+    </div>
+    <div class="progress-container"><div id="progress-bar"></div></div>
 
-        <!-- QUIZ SCREEN -->
-        <div id="quiz-screen" class="hidden">
-            <div class="px-6 pt-8 pb-24">
-                <!-- Exercise Header -->
-                <div class="mb-8">
-                    <div class="flex justify-between items-end mb-3">
-                        <div>
-                            <span id="exercise-number" class="text-blue-600 font-mono text-4xl font-bold">01</span>
-                            <span id="exercise-title" class="ml-4 text-2xl font-semibold text-slate-800"></span>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-xs text-slate-500">PROGRESO</div>
-                            <div class="flex items-center gap-x-3">
-                                <div class="h-1.5 w-48 bg-slate-200 rounded-full overflow-hidden">
-                                    <div id="progress-bar" class="progress-bar h-1.5 bg-gradient-to-r from-blue-500 to-emerald-500 rounded-full" style="width: 6.66%"></div>
-                                </div>
-                                <span id="progress-text" class="text-sm font-medium text-slate-600 w-12 text-right">1/15</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent"></div>
-                </div>
-
-                <!-- Reading Text -->
-                <div class="bg-white border border-slate-200 shadow rounded-3xl p-8 mb-10 prose prose-slate max-w-none">
-                    <p id="reading-text" class="text-slate-700 leading-relaxed text-[15.2px]"></p>
-                </div>
-
-                <!-- Questions -->
-                <div id="questions-container" class="space-y-8"></div>
-            </div>
-
-            <!-- Navigation Footer -->
-            <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 py-5 px-6 z-50">
-                <div class="max-w-4xl mx-auto flex items-center justify-between">
-                    <button onclick="prevExercise()" 
-                            id="btn-prev"
-                            class="flex items-center gap-x-3 px-8 py-4 rounded-3xl border border-slate-300 hover:border-slate-400 font-medium text-slate-700 disabled:opacity-40 transition-all">
-                        <i class="fa-solid fa-arrow-left"></i>
-                        <span>Anterior</span>
-                    </button>
-                    
-                    <button onclick="nextExercise()" 
-                            id="btn-next"
-                            class="flex items-center gap-x-3 px-10 py-4 bg-slate-800 hover:bg-black text-white rounded-3xl font-semibold disabled:bg-slate-300 transition-all">
-                        <span id="next-text">Siguiente ejercicio</span>
-                        <i class="fa-solid fa-arrow-right"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- RESULTS SCREEN -->
-        <div id="results-screen" class="hidden min-h-screen bg-slate-50 py-12">
-            <div class="max-w-4xl mx-auto px-6">
-                <div class="text-center mb-12">
-                    <div class="inline-flex items-center justify-center w-28 h-28 bg-emerald-100 text-emerald-600 rounded-3xl mb-6">
-                        <i class="fa-solid fa-trophy text-5xl"></i>
-                    </div>
-                    <h2 class="text-4xl font-bold text-slate-800 mb-2">¡Instrumento completado!</h2>
-                    <p class="text-slate-600">Aquí tienes tu retroalimentación detallada</p>
-                </div>
-
-                <!-- Global Score -->
-                <div class="bg-white rounded-3xl shadow p-8 mb-12 text-center">
-                    <div class="text-sm text-slate-500 mb-2">TU PUNTUACIÓN FINAL</div>
-                    <div class="flex items-baseline justify-center gap-x-3">
-                        <span id="final-score" class="text-7xl font-bold text-emerald-600">0</span>
-                        <span class="text-4xl text-slate-300">/</span>
-                        <span class="text-4xl font-semibold text-slate-400">45</span>
-                    </div>
-                    <div id="score-label" class="mt-3 text-lg font-medium text-emerald-700"></div>
-                </div>
-
-                <!-- Per Exercise Feedback -->
-                <div id="feedback-container" class="space-y-10"></div>
-
-                <div class="flex gap-4 justify-center mt-16">
-                    <button onclick="restartQuiz()" 
-                            class="px-10 py-5 bg-slate-800 text-white rounded-3xl font-semibold flex items-center gap-x-3 hover:bg-black">
-                        <i class="fa-solid fa-rotate"></i>
-                        <span>Realizar nuevamente</span>
-                    </button>
-                    <a href="#" onclick="window.location.reload()" 
-                       class="px-8 py-5 border-2 border-slate-300 hover:border-slate-400 text-slate-700 rounded-3xl font-medium">
-                        Cerrar
-                    </a>
-                </div>
-            </div>
-        </div>
+    <div id="form-ui" class="form-body">
+        <p>Completa tus datos para iniciar. Al finalizar, tus resultados se guardarán automáticamente.</p>
+        <label>Nombre Completo:</label>
+        <input type="text" id="user_name" placeholder="Ej. Juan Pérez" required>
+        <label>Correo Electrónico:</label>
+        <input type="email" id="user_email" placeholder="juan@ejemplo.com" required>
+        <button class="btn" onclick="startQuiz()">Comenzar Examen</button>
     </div>
 
-    <script>
-        // ==================== DATA ====================
-        const titles = [
-            "Don Quijote de la Mancha - Miguel de Cervantes",
-            "La Odisea - Homero",
-            "Romeo y Julieta - William Shakespeare",
-            "Cien años de soledad - Gabriel García Márquez",
-            "La Divina Comedia - Dante Alighieri",
-            "Pedro Páramo - Juan Rulfo",
-            "El Principito - Antoine de Saint-Exupéry",
-            "La Iliada - Homero",
-            "Madame Bovary - Gustave Flaubert",
-            "Aura - Carlos Fuentes",
-            "Crimen y castigo - Fiódor Dostoyevski",
-            "La Celestina - Fernando de Rojas",
-            "El Llano en llamas - Juan Rulfo",
-            "Orgullo y prejuicio - Jane Austen",
-            "Los de abajo - Mariano Azuela"
-        ];
+    <div id="quiz-ui" class="quiz-body">
+        <div id="tag" class="badge"></div>
+        <div id="lectura" class="lectura-box"></div>
+        <div id="pregunta" style="font-weight:700; margin-bottom:15px; font-size: 17px;"></div>
+        <div id="opciones-ui"></div>
+        <button class="btn" style="margin-top:20px" onclick="handleNext()">Siguiente Pregunta</button>
+    </div>
 
-        const baseText = `La historia explora temas universales como el amor, la justicia, la lucha interna y la condición humana. A través de sus personajes, el autor plantea preguntas sobre la moral, la libertad y el destino. La narrativa se desarrolla en un contexto histórico y cultural que influye en las decisiones de los protagonistas, mostrando cómo las emociones y las circunstancias pueden cambiar el curso de la vida. El lenguaje utilizado refleja la época y el estilo del autor, con descripciones detalladas y diálogos que revelan la psicología de los personajes. Esta obra ha trascendido generaciones, convirtiéndose en un referente literario que invita a reflexionar sobre la naturaleza humana y los valores que guían nuestras acciones.`;
+    <div id="results" class="quiz-body">
+        <div style="text-align:center">
+            <h2 id="final-score-text"></h2>
+            <p id="db-status">Sincronizando con la base de datos...</p>
+        </div>
+        <div id="feedback-list"></div>
+        <button class="btn" onclick="location.reload()">Reiniciar Simulador</button>
+    </div>
+</div>
 
-        const questionsTemplate = [
-            {
-                question: "¿Qué influye directamente en las decisiones de los protagonistas según el fragmento?",
-                options: [
-                    "La tecnología moderna y sus riesgos",
-                    "Un contexto histórico y cultural",
-                    "La economía global",
-                    "La política contemporánea"
-                ],
-                correct: 1,
-                explanation: "El texto indica claramente: 'La narrativa se desarrolla en un contexto histórico y cultural que influye en las decisiones de los protagonistas'."
-            },
-            {
-                question: "¿Qué recurso literario revela la psicología de los personajes?",
-                options: [
-                    "Uso de gráficos y tablas",
-                    "Descripciones detalladas y diálogos",
-                    "Narración científica",
-                    "Lenguaje técnico especializado"
-                ],
-                correct: 1,
-                explanation: "Se menciona explícitamente: 'con descripciones detalladas y diálogos que revelan la psicología de los personajes'."
-            },
-            {
-                question: "¿Cuál es el principal motivo por el que la obra se considera un referente literario?",
-                options: [
-                    "Porque es muy reciente",
-                    "Porque invita a reflexionar sobre la naturaleza humana y los valores",
-                    "Porque trata exclusivamente de tecnología",
-                    "Porque es muy breve"
-                ],
-                correct: 1,
-                explanation: "El fragmento concluye que la obra 'invita a reflexionar sobre la naturaleza humana y los valores que guían nuestras acciones' y por eso ha trascendido generaciones."
-            }
-        ];
+<script>
+const DATABASE_URL = "https://script.google.com/macros/s/AKfycbxTiioACVULBibJQXCo054OviMaI43oTiDZh8wOhgh2i3R6o4Fl2h3R6rgZ4aLgGMbeLA/exec";
 
-        // ==================== STATE ====================
-        let currentExercise = 0;
-        let userAnswers = Array(15).fill().map(() => Array(3).fill(null));
-        let exercisesCompleted = Array(15).fill(false);
+const banco = [
+    { t: "Comprensión (Científico)", c: "comprension", l: "El telescopio James Webb detectó CO2 en un exoplaneta a 700 años luz, demostrando su capacidad técnica.", p: "¿Cuál es la idea principal?", o: ["Distancia al planeta.", "Capacidad técnica del Webb.", "Vida inteligente."], r: 1, fb: "Resalta la capacidad técnica del observatorio." },
+    { t: "Comprensión (Literario)", c: "comprension", l: "—No me pises —dijo la sombra—. No me pises, que me duele.", p: "¿Qué figura retórica predomina?", o: ["Hipérbole", "Metonimia", "Prosopopeya"], r: 2, fb: "Atribuir voz a una sombra es prosopopeya." },
+    { t: "Comprensión (Jurídico)", c: "comprension", l: "Todo contrato legal es ley para las partes y solo se invalida por mutuo acuerdo o causas legales.", p: "¿Cómo se invalida?", o: ["Voluntad de uno.", "Mutuo acuerdo o causas legales.", "Falta de pago."], r: 1, fb: "El texto limita la invalidez al acuerdo mutuo o ley." },
+    { t: "Comprensión (Jurídico)", c: "comprension", l: "La patria potestad se ejerce sobre hijos. En separación, se decide por convenio o juez, según el interés superior del menor.", p: "¿Qué rige la decisión?", o: ["Beneficio de padres.", "Prioridad materna.", "Interés superior del menor."], r: 2, fb: "Se cita explícitamente el 'interés superior del menor'." },
+    { t: "Comprensión (Literario)", c: "comprension", l: "Santiago sentía el sedal. 'Pez', pensó, 'te respeto, pero te mataré antes de que acabe el día'.", p: "¿Qué manifiesta?", o: ["Odio.", "Afecto y determinación.", "Indiferencia."], r: 1, fb: "Une el respeto con su deber de pescador." },
+    { t: "Redacción Indirecta", c: "redaccion", l: "Elija el error de concordancia.", p: "", o: ["Mayoría aprobó.", "El grupo llegaron tarde.", "Ellos entregaron."], r: 1, fb: "'El grupo' es singular; debe ser 'llegó'." },
+    { t: "Redacción Indirecta", c: "redaccion", l: "Complete: 'Estudió mucho, ___ no logró la beca; ___, seguirá intentando'.", p: "", o: ["pero - sin embargo", "aunque - por lo tanto", "mas - no obstante"], r: 2, fb: "'Mas' (pero) y 'no obstante' encajan lógicamente." },
+    { t: "Redacción Indirecta", c: "redaccion", l: "Puntuación correcta.", p: "", o: ["Aunque estaba cansado, terminó.", "Aunque estaba cansado terminó.", "Aunque, cansado terminó."], r: 0, fb: "Coma obligatoria tras subordinada inicial." },
+    { t: "Redacción Indirecta", c: "redaccion", l: "Ortografía correcta.", p: "", o: ["Decisión exahustiva.", "Decisión exhaustiva.", "Desición exhaustiva."], r: 1, fb: "'Exhaustiva' con h y 'decisión' con c-s." },
+    { t: "Redacción Indirecta", c: "redaccion", l: "Evite pleonasmo.", p: "", o: ["Subió arriba.", "Entró adentro.", "Presentó pruebas."], r: 2, fb: "Las otras son redundantes." },
+    { t: "Redacción Indirecta", c: "redaccion", l: "Uso de 'haya'.", p: "", o: ["Espero que haiga.", "Espero que haya.", "Espero que haygan."], r: 1, fb: "'Haya' es la forma correcta." },
+    { t: "Redacción Indirecta", c: "redaccion", l: "Acentuación.", p: "", o: ["¿No se por que vino?", "Me pregunto por qué vino.", "Dime como."], r: 1, fb: "'Por qué' interrogativo indirecto lleva tilde." },
+    { t: "Redacción Indirecta", c: "redaccion", l: "Pronombre correcto.", p: "", o: ["Le dije a ellos.", "Les dije a ellos.", "Se los dije."], r: 1, fb: "'Les' concuerda con 'ellos'." },
+    { t: "Redacción Indirecta", c: "redaccion", l: "Uso de 'porqué'.", p: "", o: ["El porqué de su actitud.", "Vino porqué quería.", "No fue por qué."], r: 0, fb: "'Porqué' sustantivo lleva tilde." },
+    { t: "Redacción Indirecta", c: "redaccion", l: "Impersonal.", p: "", o: ["Habían invitados.", "Hubo invitados.", "Hicieron frío."], r: 1, fb: "Haber de existencia siempre singular." },
+    { t: "Comprensión (Científico)", c: "comprension", l: "El deshielo del permafrost despierta virus latentes milenarios. Científicos advierten riesgos de salud.", p: "¿Qué riesgo adicional menciona?", o: ["Extinción local.", "Patógenos antiguos.", "Nivel del mar."], r: 1, fb: "Menciona virus antiguos que podrían despertar." },
+    { t: "Comprensión (Literario)", c: "comprension", l: "El autor dice que su obra es un 'espejo roto' donde cada uno ve algo distinto.", p: "¿Qué metáfora usa?", o: ["Mapa sin brújula.", "Espejo roto.", "Camino sin final."], r: 1, fb: "Cita explícitamente 'espejo roto'." },
+    { t: "Comprensión (Jurídico)", c: "comprension", l: "Toda persona tiene derecho a protección de datos, salvo excepciones por seguridad nacional.", p: "¿Es absoluto?", o: ["Sí.", "No, por seguridad nacional.", "Solo el titular los ve."], r: 1, fb: "Existen excepciones legales." },
+    { t: "Comprensión (Científico)", c: "comprension", l: "Fotosíntesis artificial busca convertir CO2 en combustible. El reto es la eficiencia catalítica.", p: "¿Obstáculo principal?", o: ["Luz solar.", "Escasez de agua.", "Eficiencia catalítica."], r: 2, fb: "Menciona la eficiencia de catalizadores." },
+    { t: "Comprensión (Literario)", c: "comprension", l: "Caminante, no hay camino, se hace camino al andar.", p: "¿Qué sugiere?", o: ["Destino escrito.", "Creación constante.", "Mirar al pasado."], r: 1, fb: "Sostiene que creamos nuestro destino al vivir." },
+    { t: "Redacción Indirecta", c: "redaccion", l: "Acentuación.", p: "", o: ["El jóven compró.", "El joven compró.", "El joven compro."], r: 1, fb: "'Joven' es grave terminada en n; sin tilde." },
+    { t: "Redacción Indirecta", c: "redaccion", l: "Sino/Si no.", p: "", o: ["No pan sino tortillas.", "No pan si no tortillas.", "Si no vienes."], r: 0, fb: "'Sino' unido contrapone ideas." },
+    { t: "Redacción Indirecta", c: "redaccion", l: "Probabilidad.", p: "", o: ["Debes de estudiar.", "Debes estudiar.", "Debe de haber salido."], r: 2, fb: "'Debe de' indica suposición." },
+    { t: "Redacción Indirecta", c: "redaccion", l: "Grafías.", p: "", o: ["Herbolaria.", "Exivir.", "Zanahoria."], r: 1, fb: "Se escribe 'Exhibir'." },
+    { t: "Redacción Indirecta", c: "redaccion", l: "Voseo.", p: "", o: ["Tú tienes.", "Vos tenés.", "Vos tienes."], r: 1, fb: "La forma correcta es 'Vos tenés'." }
+];
 
-        // ==================== TAILWIND INIT ====================
-        function initTailwind() {
-            // Already loaded via CDN
-        }
+let currentIdx = 0, score = 0, userAnswers = [], selectedOption = null, timerInterval;
+let userData = { name: "", email: "" };
 
-        // ==================== RENDER FUNCTIONS ====================
-        function renderExercise() {
-            const title = titles[currentExercise];
-            const fullText = `Este fragmento está inspirado en la obra '${title}'. ${baseText}`;
+function startQuiz() {
+    userData.name = document.getElementById('user_name').value;
+    userData.email = document.getElementById('user_email').value;
+    if(!userData.name || !userData.email) return alert("Ingresa tu nombre y correo");
+    
+    document.getElementById('form-ui').style.display = 'none';
+    document.getElementById('quiz-ui').style.display = 'block';
+    document.getElementById('title-main').innerText = "EXANI-II en Progreso";
+    startTimer(40 * 60);
+    renderQuestion();
+}
 
-            document.getElementById('exercise-number').textContent = String(currentExercise + 1).padStart(2, '0');
-            document.getElementById('exercise-title').textContent = title;
-            document.getElementById('reading-text').innerHTML = fullText.replace(/\n/g, '<br>');
+function startTimer(duration) {
+    let timer = duration;
+    timerInterval = setInterval(() => {
+        let minutes = parseInt(timer / 60, 10);
+        let seconds = parseInt(timer % 60, 10);
+        document.getElementById('timer').textContent = `${minutes}:${seconds < 10 ? '0'+seconds : seconds}`;
+        if (--timer < 0) { clearInterval(timerInterval); alert("Tiempo agotado"); showResults(); }
+    }, 1000);
+}
 
-            // Progress
-            const progressPercent = Math.round(((currentExercise) / 14) * 100);
-            document.getElementById('progress-bar').style.width = `${progressPercent}%`;
-            document.getElementById('progress-text').textContent = `${currentExercise + 1}/15`;
-
-            // Render questions
-            const container = document.getElementById('questions-container');
-            container.innerHTML = '';
-
-            questionsTemplate.forEach((q, qIndex) => {
-                const div = document.createElement('div');
-                div.className = 'question-card bg-white border border-slate-200 rounded-3xl p-7 shadow-sm';
-                div.innerHTML = `
-                    <div class="flex gap-x-4">
-                        <div class="flex-shrink-0 w-8 h-8 rounded-2xl bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-lg">${qIndex + 1}</div>
-                        <div class="flex-1">
-                            <p class="font-medium text-slate-800 leading-tight text-[15.5px] mb-6">${q.question}</p>
-                            
-                            <div class="space-y-2">
-                                ${q.options.map((opt, optIndex) => `
-                                    <label onclick="selectOption(${qIndex}, ${optIndex})" 
-                                           class="option-label flex items-center gap-x-4 px-5 py-4 rounded-2xl border border-transparent hover:border-blue-200 cursor-pointer ${userAnswers[currentExercise][qIndex] === optIndex ? 'bg-blue-50 border-blue-200' : ''}">
-                                        <div class="w-6 h-6 rounded-xl border-2 flex items-center justify-center flex-shrink-0 ${userAnswers[currentExercise][qIndex] === optIndex ? 'bg-blue-600 border-blue-600' : 'border-slate-300'}">
-                                            ${userAnswers[currentExercise][qIndex] === optIndex ? 
-                                                `<i class="fa-solid fa-check text-white text-xs"></i>` : ''}
-                                        </div>
-                                        <span class="text-slate-700">${opt}</span>
-                                    </label>
-                                `).join('')}
-                            </div>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-
-            // Button states
-            document.getElementById('btn-prev').disabled = currentExercise === 0;
-            document.getElementById('btn-next').innerHTML = `
-                ${currentExercise === 14 ? 
-                    `<span class="flex items-center gap-x-3">Ver resultados <i class="fa-solid fa-flag-checkered"></i></span>` : 
-                    `<span id="next-text">Siguiente ejercicio</span><i class="fa-solid fa-arrow-right"></i>`}
-            `;
-        }
-
-        function selectOption(qIndex, optionIndex) {
-            userAnswers[currentExercise][qIndex] = optionIndex;
-            renderExercise(); // re-render to show selection
-        }
-
-        // ==================== NAVIGATION ====================
-        function nextExercise() {
-            // Save current answers (already saved on click)
-            if (currentExercise < 14) {
-                currentExercise++;
-                renderExercise();
-            } else {
-                showResults();
-            }
-        }
-
-        function prevExercise() {
-            if (currentExercise > 0) {
-                currentExercise--;
-                renderExercise();
-            }
-        }
-
-        function startQuiz() {
-            document.getElementById('start-screen').classList.add('hidden');
-            document.getElementById('quiz-screen').classList.remove('hidden');
-            document.getElementById('progress-header').classList.remove('hidden');
-            currentExercise = 0;
-            userAnswers = Array(15).fill().map(() => Array(3).fill(null));
-            renderExercise();
-        }
-
-        function showResults() {
-            document.getElementById('quiz-screen').classList.add('hidden');
-            document.getElementById('results-screen').classList.remove('hidden');
-            
-            let totalCorrect = 0;
-            const container = document.getElementById('feedback-container');
-            container.innerHTML = '';
-
-            titles.forEach((title, exIndex) => {
-                let exerciseCorrect = 0;
-                const html = `
-                    <div class="bg-white rounded-3xl p-8 border border-slate-100">
-                        <div class="flex items-center justify-between mb-6">
-                            <div class="flex items-center gap-x-4">
-                                <span class="text-xl font-bold text-blue-600">${String(exIndex + 1).padStart(2, '0')}</span>
-                                <div>
-                                    <p class="font-semibold text-slate-700">${title}</p>
-                                </div>
-                            </div>
-                            <div class="text-emerald-600 font-semibold text-xl">${exerciseCorrect}/3</div>
-                        </div>
-                        
-                        <div class="space-y-8">
-                            ${questionsTemplate.map((q, qIndex) => {
-                                const userAns = userAnswers[exIndex][qIndex];
-                                const isCorrect = userAns === q.correct;
-                                if (isCorrect) exerciseCorrect++;
-                                return `
-                                    <div class="border-l-4 ${isCorrect ? 'border-emerald-500' : 'border-red-400'} pl-6">
-                                        <p class="text-slate-700 font-medium mb-3">${q.question}</p>
-                                        <div class="flex items-start gap-x-4 text-sm">
-                                            <div>
-                                                <span class="font-mono text-xs bg-slate-100 px-2 py-px rounded">Tu respuesta:</span>
-                                                <span class="ml-2 ${isCorrect ? 'text-emerald-600' : 'text-red-500'}">
-                                                    ${userAns !== null ? q.options[userAns] : '<span class="text-slate-400">Sin responder</span>'}
-                                                </span>
-                                            </div>
-                                        </div>
-                                        ${!isCorrect && userAns !== null ? `
-                                        <div class="mt-3 text-xs bg-amber-50 border border-amber-200 p-3 rounded-2xl">
-                                            <span class="font-medium text-amber-700">Respuesta correcta:</span> 
-                                            <span class="font-medium">${q.options[q.correct]}</span>
-                                        </div>` : ''}
-                                        <div class="mt-4 text-xs leading-relaxed text-slate-500 bg-slate-50 p-4 rounded-2xl">
-                                            ${q.explanation}
-                                        </div>
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
-                    </div>
-                `;
-                container.innerHTML += html;
-                totalCorrect += exerciseCorrect;
-            });
-
-            // Global score
-            document.getElementById('final-score').textContent = totalCorrect;
-            
-            const percent = Math.round((totalCorrect / 45) * 100);
-            let label = '';
-            if (percent >= 90) label = '¡Excelente dominio!';
-            else if (percent >= 75) label = '¡Muy bien!';
-            else if (percent >= 60) label = '¡Aprobado!';
-            else label = 'Sigue practicando';
-            
-            document.getElementById('score-label').innerHTML = `
-                ${percent}% • <span class="text-slate-400">${label}</span>
-            `;
-        }
-
-        function restartQuiz() {
-            document.getElementById('results-screen').classList.add('hidden');
-            document.getElementById('start-screen').classList.remove('hidden');
-            document.getElementById('progress-header').classList.add('hidden');
-        }
-
-        // ==================== KEYBOARD SUPPORT ====================
-        document.addEventListener('keydown', function(e) {
-            if (document.getElementById('quiz-screen').classList.contains('hidden')) return;
-            
-            if (e.key === "ArrowRight") {
-                nextExercise();
-            }
-            if (e.key === "ArrowLeft") {
-                prevExercise();
-            }
-        });
-
-        // ==================== INIT ====================
-        window.onload = function() {
-            initTailwind();
-            // Ready to start
-            console.log('%c✅ Instrumento Exani II listo para tus estudiantes', 'color:#0ea5e9; font-family:monospace');
+function renderQuestion() {
+    const item = banco[currentIdx];
+    document.getElementById('progress-bar').style.width = ((currentIdx + 1) / banco.length * 100) + "%";
+    document.getElementById('tag').innerText = item.t;
+    document.getElementById('tag').className = 'badge ' + item.c;
+    document.getElementById('lectura').innerText = item.l;
+    document.getElementById('pregunta').innerText = item.p;
+    
+    const container = document.getElementById('opciones-ui');
+    container.innerHTML = '';
+    item.o.forEach((op, i) => {
+        const div = document.createElement('div');
+        div.className = 'opcion';
+        div.innerText = op;
+        div.onclick = () => {
+            selectedOption = i;
+            document.querySelectorAll('.opcion').forEach(d => d.classList.remove('active'));
+            div.classList.add('active');
         };
-    </script>
+        container.appendChild(div);
+    });
+}
+
+function handleNext() {
+    if (selectedOption === null) return alert("Selecciona una opción");
+    userAnswers.push(selectedOption);
+    if (selectedOption === banco[currentIdx].r) score++;
+    selectedOption = null;
+    currentIdx++;
+    if (currentIdx < banco.length) renderQuestion(); else showResults();
+}
+
+async function showResults() {
+    clearInterval(timerInterval);
+    document.getElementById('quiz-ui').style.display = 'none';
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('final-score-text').innerText = `Puntaje: ${score} / ${banco.length}`;
+    
+    try {
+        await fetch(DATABASE_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: userData.name, email: userData.email, score: score, total: banco.length })
+        });
+        document.getElementById('db-status').innerText = "✓ Resultados guardados exitosamente.";
+    } catch (e) {
+        document.getElementById('db-status').innerText = "✕ Error al guardar resultados.";
+    }
+
+    const list = document.getElementById('feedback-list');
+    list.innerHTML = "";
+    banco.forEach((p, i) => {
+        const isOk = userAnswers[i] === p.r;
+        list.innerHTML += `<div class="retro-card" style="border-left-color:${isOk?'#28a745':'#dc3545'}">
+            <strong>${i+1}.</strong> ${p.p || p.l.substring(0,40)}...<br>
+            <p style="margin:5px 0"><em>Retro:</em> ${p.fb}</p>
+        </div>`;
+    });
+    window.scrollTo(0,0);
+}
+</script>
 </body>
 </html>
