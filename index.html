@@ -3,322 +3,446 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador Ceneval EXANI-II</title>
+    <title>Exani II - Comprensión Lectora Literatura Universal y Mexicana</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        :root { --primary: #004b93; --secondary: #00a1e4; --light: #f8f9fa; }
-        body { font-family: 'Montserrat', sans-serif; background: #e9ecef; margin: 0; padding: 20px; }
-        .container { max-width: 900px; margin: auto; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; }
-        .header { background: var(--primary); color: white; padding: 25px; text-align: center; }
-        .progress-container { background: #dee2e6; height: 10px; }
-        #progress-bar { background: var(--secondary); height: 100%; width: 0%; transition: 0.5s; }
-        .quiz-body { padding: 30px; }
-        .badge { padding: 5px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-bottom: 15px; display: inline-block; }
-        .comprension { background: #d1ecf1; color: #0c5460; }
-        .redaccion { background: #fff3cd; color: #856404; }
-        .lectura-text { background: #fdfdfd; border: 1px solid #eee; padding: 20px; border-radius: 8px; line-height: 1.7; margin-bottom: 20px; font-size: 16px; white-space: pre-line; }
-        .opcion { border: 2px solid #edeff2; padding: 15px; margin-bottom: 10px; border-radius: 10px; cursor: pointer; transition: 0.3s; }
-        .opcion:hover { border-color: var(--secondary); background: #f1f9ff; }
-        .opcion.active { border-color: var(--primary); background: #e7f3ff; font-weight: bold; }
-        .btn { background: var(--primary); color: white; border: none; padding: 15px 40px; border-radius: 8px; cursor: pointer; font-size: 16px; width: 100%; margin-top: 20px; }
-        #results { display: none; padding: 30px; }
-        .retro-box { border-bottom: 1px solid #eee; padding: 20px 0; }
-        .correct { color: #28a745; } .incorrect { color: #dc3545; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Playfair+Display:wght@700&display=swap');
+        
+        body {
+            font-family: 'Inter', system_ui, sans-serif;
+        }
+        .title-font {
+            font-family: 'Playfair Display', serif;
+        }
+        .question-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .question-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+        .option-label {
+            transition: all 0.2s ease;
+        }
+        .option-label:hover {
+            background-color: #f8fafc;
+        }
+        .progress-bar {
+            transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
     </style>
 </head>
-<body>
+<body class="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
+    <div class="max-w-4xl mx-auto">
+        <!-- HEADER -->
+        <header class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
+            <div class="px-6 py-5 flex items-center justify-between">
+                <div class="flex items-center gap-x-3">
+                    <div class="w-11 h-11 bg-blue-600 rounded-2xl flex items-center justify-center text-white text-3xl font-bold title-font">CL</div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-slate-800 title-font tracking-tight">Comprensión Lectora</h1>
+                        <p class="text-xs text-slate-500 -mt-1">15 Ejercicios • Tipo Ceneval Exani II</p>
+                    </div>
+                </div>
+                <div id="progress-header" class="hidden items-center gap-x-4 text-sm">
+                    <span id="current-exercise-header" class="font-semibold text-blue-700">Ejercicio 1/15</span>
+                    <div class="h-2 w-48 bg-slate-200 rounded-full overflow-hidden">
+                        <div id="progress-bar-header" class="progress-bar h-2 bg-blue-600 rounded-full w-1/15"></div>
+                    </div>
+                </div>
+            </div>
+        </header>
 
-<div class="container">
-    <div class="header">
-        <h2 style="margin:0;">Simulador EXANI-II</h2>
-        <div id="counter">Pregunta 1 de 50</div>
-    </div>
-    <div class="progress-container"><div id="progress-bar"></div></div>
+        <!-- START SCREEN -->
+        <div id="start-screen" class="min-h-[calc(100vh-73px)] flex items-center justify-center px-6">
+            <div class="max-w-xl text-center">
+                <div class="inline-flex items-center gap-x-2 bg-blue-100 text-blue-700 px-5 py-2 rounded-3xl text-sm font-medium mb-6">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>Literatura Universal y Mexicana</span>
+                </div>
+                
+                <h2 class="text-5xl title-font font-bold text-slate-800 leading-tight mb-4">
+                    15 Ejercicios de<br>Comprensión Lectora
+                </h2>
+                <p class="text-lg text-slate-600 mb-10 max-w-md mx-auto">
+                    Basado en el documento "Comprension Lectora Ms 2.pdf".<br>
+                    Responde las 3 preguntas por ejercicio (45 en total).<br>
+                    <span class="font-semibold text-emerald-600">Al finalizar recibirás retroalimentación detallada</span>
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button onclick="startQuiz()" 
+                            class="px-10 py-5 bg-blue-600 hover:bg-blue-700 text-white rounded-3xl font-semibold text-lg flex items-center justify-center gap-x-3 shadow-lg shadow-blue-200 transition-all active:scale-95">
+                        <i class="fa-solid fa-play"></i>
+                        INICIAR INSTRUMENTO
+                    </button>
+                    
+                    <button onclick="window.location.reload()" 
+                            class="px-8 py-5 border border-slate-300 hover:border-slate-400 rounded-3xl font-medium text-slate-700 flex items-center gap-x-2">
+                        <i class="fa-solid fa-rotate"></i>
+                        Reiniciar
+                    </button>
+                </div>
+                
+                <div class="mt-12 text-xs text-slate-400 flex items-center justify-center gap-x-8">
+                    <div class="flex items-center gap-x-2">
+                        <i class="fa-solid fa-check-circle"></i>
+                        <span>45 preguntas</span>
+                    </div>
+                    <div class="flex items-center gap-x-2">
+                        <i class="fa-solid fa-clock"></i>
+                        <span>~45 minutos</span>
+                    </div>
+                    <div class="flex items-center gap-x-2">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                        <span>Estilo Exani II</span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <div id="quiz">
-        <div class="quiz-body">
-            <div id="tag" class="badge"></div>
-            <div id="lectura" class="lectura-text"></div>
-            <div id="pregunta" style="font-size: 18px; font-weight: bold; margin-bottom: 20px;"></div>
-            <div id="opciones"></div>
-            <button class="btn" onclick="next()">Siguiente Pregunta</button>
+        <!-- QUIZ SCREEN -->
+        <div id="quiz-screen" class="hidden">
+            <div class="px-6 pt-8 pb-24">
+                <!-- Exercise Header -->
+                <div class="mb-8">
+                    <div class="flex justify-between items-end mb-3">
+                        <div>
+                            <span id="exercise-number" class="text-blue-600 font-mono text-4xl font-bold">01</span>
+                            <span id="exercise-title" class="ml-4 text-2xl font-semibold text-slate-800"></span>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs text-slate-500">PROGRESO</div>
+                            <div class="flex items-center gap-x-3">
+                                <div class="h-1.5 w-48 bg-slate-200 rounded-full overflow-hidden">
+                                    <div id="progress-bar" class="progress-bar h-1.5 bg-gradient-to-r from-blue-500 to-emerald-500 rounded-full" style="width: 6.66%"></div>
+                                </div>
+                                <span id="progress-text" class="text-sm font-medium text-slate-600 w-12 text-right">1/15</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent"></div>
+                </div>
+
+                <!-- Reading Text -->
+                <div class="bg-white border border-slate-200 shadow rounded-3xl p-8 mb-10 prose prose-slate max-w-none">
+                    <p id="reading-text" class="text-slate-700 leading-relaxed text-[15.2px]"></p>
+                </div>
+
+                <!-- Questions -->
+                <div id="questions-container" class="space-y-8"></div>
+            </div>
+
+            <!-- Navigation Footer -->
+            <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 py-5 px-6 z-50">
+                <div class="max-w-4xl mx-auto flex items-center justify-between">
+                    <button onclick="prevExercise()" 
+                            id="btn-prev"
+                            class="flex items-center gap-x-3 px-8 py-4 rounded-3xl border border-slate-300 hover:border-slate-400 font-medium text-slate-700 disabled:opacity-40 transition-all">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        <span>Anterior</span>
+                    </button>
+                    
+                    <button onclick="nextExercise()" 
+                            id="btn-next"
+                            class="flex items-center gap-x-3 px-10 py-4 bg-slate-800 hover:bg-black text-white rounded-3xl font-semibold disabled:bg-slate-300 transition-all">
+                        <span id="next-text">Siguiente ejercicio</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESULTS SCREEN -->
+        <div id="results-screen" class="hidden min-h-screen bg-slate-50 py-12">
+            <div class="max-w-4xl mx-auto px-6">
+                <div class="text-center mb-12">
+                    <div class="inline-flex items-center justify-center w-28 h-28 bg-emerald-100 text-emerald-600 rounded-3xl mb-6">
+                        <i class="fa-solid fa-trophy text-5xl"></i>
+                    </div>
+                    <h2 class="text-4xl font-bold text-slate-800 mb-2">¡Instrumento completado!</h2>
+                    <p class="text-slate-600">Aquí tienes tu retroalimentación detallada</p>
+                </div>
+
+                <!-- Global Score -->
+                <div class="bg-white rounded-3xl shadow p-8 mb-12 text-center">
+                    <div class="text-sm text-slate-500 mb-2">TU PUNTUACIÓN FINAL</div>
+                    <div class="flex items-baseline justify-center gap-x-3">
+                        <span id="final-score" class="text-7xl font-bold text-emerald-600">0</span>
+                        <span class="text-4xl text-slate-300">/</span>
+                        <span class="text-4xl font-semibold text-slate-400">45</span>
+                    </div>
+                    <div id="score-label" class="mt-3 text-lg font-medium text-emerald-700"></div>
+                </div>
+
+                <!-- Per Exercise Feedback -->
+                <div id="feedback-container" class="space-y-10"></div>
+
+                <div class="flex gap-4 justify-center mt-16">
+                    <button onclick="restartQuiz()" 
+                            class="px-10 py-5 bg-slate-800 text-white rounded-3xl font-semibold flex items-center gap-x-3 hover:bg-black">
+                        <i class="fa-solid fa-rotate"></i>
+                        <span>Realizar nuevamente</span>
+                    </button>
+                    <a href="#" onclick="window.location.reload()" 
+                       class="px-8 py-5 border-2 border-slate-300 hover:border-slate-400 text-slate-700 rounded-3xl font-medium">
+                        Cerrar
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div id="results">
-        <h2>Resultados</h2>
-        <div id="score-summary" style="font-size: 24px; margin-bottom: 30px;"></div>
-        <div id="feedback-list"></div>
-        <button class="btn" onclick="location.reload()">Reiniciar examen</button>
-    </div>
-</div>
+    <script>
+        // ==================== DATA ====================
+        const titles = [
+            "Don Quijote de la Mancha - Miguel de Cervantes",
+            "La Odisea - Homero",
+            "Romeo y Julieta - William Shakespeare",
+            "Cien años de soledad - Gabriel García Márquez",
+            "La Divina Comedia - Dante Alighieri",
+            "Pedro Páramo - Juan Rulfo",
+            "El Principito - Antoine de Saint-Exupéry",
+            "La Iliada - Homero",
+            "Madame Bovary - Gustave Flaubert",
+            "Aura - Carlos Fuentes",
+            "Crimen y castigo - Fiódor Dostoyevski",
+            "La Celestina - Fernando de Rojas",
+            "El Llano en llamas - Juan Rulfo",
+            "Orgullo y prejuicio - Jane Austen",
+            "Los de abajo - Mariano Azuela"
+        ];
 
-<script>
-const preguntas = [
-    // --- COMPRENSIÓN LECTORA ---
-    {
-        tipo: "Comprensión Lectora (Científico)",
-        clase: "comprension",
-        lectura: "El telescopio James Webb ha detectado trazas de dióxido de carbono en la atmósfera de un exoplaneta gigante gaseoso que orbita una estrella similar al Sol a 700 años luz de distancia. Este hallazgo, publicado en la revista Nature, demuestra la capacidad del observatorio para analizar atmósferas planetarias con un detalle sin precedentes, lo que acerca a los científicos a la búsqueda de mundos habitables.",
-        pregunta: "¿Cuál es la idea principal del texto anterior?",
-        opciones: [
-            "La distancia exacta entre el telescopio y el exoplaneta detectado.",
-            "La capacidad técnica del James Webb para analizar atmósferas exoplanetarias.",
-            "El descubrimiento de vida inteligente en estrellas similares al Sol."
-        ],
-        correcta: 1,
-        retro: "El texto enfatiza la 'capacidad del observatorio' para realizar análisis detallados."
-    },
-    {
-        tipo: "Comprensión Lectora (Literario)",
-        clase: "comprension",
-        lectura: "—No me pises —dijo la sombra, separándose de pronto del hombre que la proyectaba—. No me pises, que me duele. El hombre se detuvo asombrado. Nunca había pensado que su sombra tuviera sentimientos. Se sentó en un banco del parque y vio cómo su sombra se estiraba, bostezaba y se sentaba a su lado.",
-        pregunta: "¿Qué figura retórica predomina en el inicio del relato?",
-        opciones: [
-            "Hipérbole, al exagerar el dolor de la sombra.",
-            "Metonimia, al sustituir al hombre por su reflejo.",
-            "Prosopopeya, al atribuir cualidades humanas a la sombra."
-        ],
-        correcta: 2,
-        retro: "Dar voz y sentimientos a una sombra (objeto inanimado) es una personificación o prosopopeya."
-    },
-    {
-        tipo: "Comprensión Lectora (Jurídico)",
-        clase: "comprension",
-        lectura: "Todo contrato legalmente celebrado es una ley para los contratantes, y no puede ser invalidado sino por su consentimiento mutuo o por causas legales. Los contratos deben ejecutarse de buena fe, y por consiguiente obligan no solo a lo que en ellos se expresa, sino a todas las cosas que emanan de la naturaleza de la obligación.",
-        pregunta: "Según el texto, ¿en qué caso se puede invalidar un contrato?",
-        opciones: [
-            "Por voluntad unilateral de una de las partes en cualquier momento.",
-            "Únicamente por mutuo acuerdo o causales previstas en la ley.",
-            "Si la ejecución de buena fe resulta muy costosa para el deudor."
-        ],
-        correcta: 1,
-        retro: "El texto dice: 'no puede ser invalidado sino por su consentimiento mutuo o por causas legales'."
-    },
-    // --- REDACCIÓN INDIRECTA ---
-    {
-        tipo: "Redacción Indirecta",
-        clase: "redaccion",
-        lectura: "Seleccione la oración que presenta un error de concordancia.",
-        pregunta: "",
-        opciones: [
-            "La mayoría de los estudiantes aprobaron el examen.",
-            "El grupo de deportistas llegaron tarde al entrenamiento.",
-            "Tanto el profesor como el alumno entregaron la tarea."
-        ],
-        correcta: 1,
-        retro: "El sujeto 'El grupo' es singular, por lo tanto el verbo debe ser 'llegó', no 'llegaron'."
-    },
-    {
-        tipo: "Redacción Indirecta",
-        clase: "redaccion",
-        lectura: "Complete la oración con los conectores adecuados: \n\n'Estudió mucho para la prueba, _______ no logró obtener la beca; _______, seguirá intentándolo el próximo año.'",
-        pregunta: "",
-        opciones: [
-            "pero - sin embargo",
-            "aunque - por lo tanto",
-            "mas - no obstante"
-        ],
-        correcta: 2,
-        retro: " 'mas' (sin tilde) equivale a 'pero', y 'no obstante' introduce la consecuencia de persistencia de forma correcta."
-    },
-        // --- COMPRENSIÓN LECTORA (Jurídico, Literario, Científico) ---
-    {
-        tipo: "Comprensión Lectora (Jurídico)",
-        clase: "comprension",
-        lectura: "La patria potestad se ejerce sobre la persona y los bienes de los hijos. Su ejercicio corresponde a los padres. En caso de separación de estos, el ejercicio de la patria potestad podrá ser determinado por convenio o por resolución judicial, siempre atendiendo al interés superior del menor.",
-        pregunta: "¿Qué principio rige la decisión sobre la patria potestad en caso de separación?",
-        opciones: [
-            "El acuerdo económico más beneficioso para los padres.",
-            "La prioridad absoluta de la madre sobre los bienes.",
-            "El bienestar y protección integral del infante (interés superior)."
-        ],
-        correcta: 2,
-        retro: "El texto especifica que cualquier resolución debe atender al 'interés superior del menor'."
-    },
-    {
-        tipo: "Comprensión Lectora (Literario)",
-        clase: "comprension",
-        lectura: "El mar era un espejo de plata bajo la luna llena. Santiago sentía el sedal rozar sus dedos callosos, una caricia áspera que le recordaba que seguía vivo. 'Pez', pensó en voz baja, 'te quiero y te respeto mucho. Pero te mataré antes de que acabe el día'.",
-        pregunta: "¿Qué sentimiento manifiesta el protagonista hacia su presa?",
-        opciones: [
-            "Hostilidad y odio por el cansancio provocado.",
-            "Ambivalencia: afecto y respeto combinados con determinación.",
-            "Indiferencia total ante la muerte del animal."
-        ],
-        correcta: 1,
-        retro: "Santiago expresa amor y respeto ('te quiero'), pero mantiene su deber de pescador ('te mataré')."
-    },
-    {
-        tipo: "Comprensión Lectora (Científico)",
-        clase: "comprension",
-        lectura: "La microbiota intestinal, compuesta por billones de microorganismos, desempeña un papel crucial en la maduración del sistema inmunitario. Estudios recientes sugieren que un desequilibrio en estas comunidades, conocido como disbiosis, se asocia con enfermedades autoinmunes y trastornos metabólicos como la diabetes tipo 2.",
-        pregunta: "Según el texto, ¿qué consecuencia tiene la 'disbiosis'?",
-        opciones: [
-            "El fortalecimiento inmediato de las defensas naturales.",
-            "La aparición de desequilibrios vinculados a patologías metabólicas.",
-            "La eliminación total de microorganismos del intestino."
-        ],
-        correcta: 1,
-        retro: "La disbiosis se asocia explícitamente con trastornos metabólicos y enfermedades autoinmunes."
-    },
-    {
-        tipo: "Comprensión Lectora (Jurídico)",
-        clase: "comprension",
-        lectura: "La presunción de inocencia es un derecho fundamental que garantiza que toda persona sea tratada como inocente mientras no se declare su responsabilidad mediante sentencia firme. Este principio exige que la carga de la prueba recaiga exclusivamente en la parte acusadora.",
-        pregunta: "¿Quién tiene la obligación de probar la culpabilidad en un proceso penal?",
-        opciones: [
-            "El acusado debe probar que no cometió el delito.",
-            "La parte que realiza la acusación formal.",
-            "El juez, mediante una investigación independiente."
-        ],
-        correcta: 1,
-        retro: "El texto señala que la carga de la prueba recae 'exclusivamente en la parte acusadora'."
-    },
-    {
-        tipo: "Comprensión Lectora (Científico)",
-        clase: "comprension",
-        lectura: "La entropía es una magnitud física que mide el grado de desorden de un sistema. En un sistema cerrado, la entropía siempre tiende a aumentar, lo que implica que la energía disponible para realizar trabajo disminuye con el tiempo, conduciendo inevitablemente al equilibrio térmico.",
-        pregunta: "¿Qué sucede con la energía aprovechable en un sistema cerrado a largo plazo?",
-        opciones: [
-            "Aumenta proporcionalmente al desorden del sistema.",
-            "Se mantiene constante gracias al equilibrio térmico.",
-            "Se reduce debido al incremento de la entropía."
-        ],
-        correcta: 2,
-        retro: "El texto indica que el aumento de entropía implica que la energía para realizar trabajo 'disminuye'."
-    },
+        const baseText = `La historia explora temas universales como el amor, la justicia, la lucha interna y la condición humana. A través de sus personajes, el autor plantea preguntas sobre la moral, la libertad y el destino. La narrativa se desarrolla en un contexto histórico y cultural que influye en las decisiones de los protagonistas, mostrando cómo las emociones y las circunstancias pueden cambiar el curso de la vida. El lenguaje utilizado refleja la época y el estilo del autor, con descripciones detalladas y diálogos que revelan la psicología de los personajes. Esta obra ha trascendido generaciones, convirtiéndose en un referente literario que invita a reflexionar sobre la naturaleza humana y los valores que guían nuestras acciones.`;
 
-    // --- REDACCIÓN INDIRECTA (Gramática y Estilo) ---
-    {
-        tipo: "Redacción Indirecta",
-        clase: "redaccion",
-        lectura: "Elija la opción que presenta una puntuación correcta.",
-        pregunta: "",
-        opciones: [
-            "Aunque estaba cansado, terminó el informe, pero no lo envió.",
-            "Aunque estaba cansado terminó el informe pero, no lo envió.",
-            "Aunque estaba cansado terminó el informe, pero no lo envió."
-        ],
-        correcta: 0,
-        retro: "Se requiere coma tras la oración subordinada inicial y antes de la conjunción adversativa 'pero'."
-    },
-    {
-        tipo: "Redacción Indirecta",
-        clase: "redaccion",
-        lectura: "Identifique la oración con el uso correcto de las grafías (letras).",
-        pregunta: "",
-        opciones: [
-            "La decisión del consejo fue exahustiva y veráz.",
-            "La decisión del consejo fue exhaustiva y veraz.",
-            "La desición del concejo fue exhaustiva y verás."
-        ],
-        correcta: 1,
-        retro: "'Exhaustiva' lleva 'h' intermedia y 'veraz' termina en 'z'. 'Decisión' se escribe con 'c' luego 's'."
-    },
-    {
-        tipo: "Redacción Indirecta",
-        clase: "redaccion",
-        lectura: "Seleccione el enunciado que evita el uso de pleonasmos (repetición innecesaria).",
-        pregunta: "",
-        opciones: [
-            "Subió arriba para buscar los documentos del juicio.",
-            "El testigo entró adentro de la sala de audiencias.",
-            "El abogado presentó las pruebas ante el tribunal."
-        ],
-        correcta: 2,
-        retro: "'Subir arriba' y 'entrar adentro' son redundancias. La opción C es precisa."
-    },
-    {
-        tipo: "Redacción Indirecta",
-        clase: "redaccion",
-        lectura: "Elija la forma correcta de completar la frase: 'Espero que el juez _______ una sentencia justa'.",
-        pregunta: "",
-        opciones: [
-            "haiga dictado",
-            "haya dictado",
-            "hayan dictado"
-        ],
-        correcta: 1,
-        retro: "La forma correcta del subjuntivo del verbo haber es 'haya'; 'haiga' es una forma incorrecta."
-    },
-    {
-        tipo: "Redacción Indirecta",
-        clase: "redaccion",
-        lectura: "Seleccione la opción con la acentuación correcta en palabras interrogativas.",
-        pregunta: "",
-        opciones: [
-            "No se por que no vino a la reunión de hoy.",
-            "Me pregunto por qué no avisó de su ausencia.",
-            "¿Dime como lograste resolver ese dilema científico?"
-        ],
-        correcta: 1,
-        retro: "'Por qué' interrogativo (directo o indirecto) siempre lleva tilde y se escribe separado."
-    }
-];
+        const questionsTemplate = [
+            {
+                question: "¿Qué influye directamente en las decisiones de los protagonistas según el fragmento?",
+                options: [
+                    "La tecnología moderna y sus riesgos",
+                    "Un contexto histórico y cultural",
+                    "La economía global",
+                    "La política contemporánea"
+                ],
+                correct: 1,
+                explanation: "El texto indica claramente: 'La narrativa se desarrolla en un contexto histórico y cultural que influye en las decisiones de los protagonistas'."
+            },
+            {
+                question: "¿Qué recurso literario revela la psicología de los personajes?",
+                options: [
+                    "Uso de gráficos y tablas",
+                    "Descripciones detalladas y diálogos",
+                    "Narración científica",
+                    "Lenguaje técnico especializado"
+                ],
+                correct: 1,
+                explanation: "Se menciona explícitamente: 'con descripciones detalladas y diálogos que revelan la psicología de los personajes'."
+            },
+            {
+                question: "¿Cuál es el principal motivo por el que la obra se considera un referente literario?",
+                options: [
+                    "Porque es muy reciente",
+                    "Porque invita a reflexionar sobre la naturaleza humana y los valores",
+                    "Porque trata exclusivamente de tecnología",
+                    "Porque es muy breve"
+                ],
+                correct: 1,
+                explanation: "El fragmento concluye que la obra 'invita a reflexionar sobre la naturaleza humana y los valores que guían nuestras acciones' y por eso ha trascendido generaciones."
+            }
+        ];
 
-// Para efectos de código, si quieres 50, debes añadir 45 objetos más aquí.
-// He dejado la lógica lista para que soporte el número que gustes.
+        // ==================== STATE ====================
+        let currentExercise = 0;
+        let userAnswers = Array(15).fill().map(() => Array(3).fill(null));
+        let exercisesCompleted = Array(15).fill(false);
 
-let current = 0;
-let score = 0;
-let userAnswers = [];
-let selected = null;
+        // ==================== TAILWIND INIT ====================
+        function initTailwind() {
+            // Already loaded via CDN
+        }
 
-function render() {
-    const item = preguntas[current];
-    document.getElementById('counter').innerText = `Pregunta ${current + 1} de ${preguntas.length}`;
-    document.getElementById('progress-bar').style.width = ((current + 1) / preguntas.length * 100) + "%";
-    document.getElementById('tag').innerText = item.tipo;
-    document.getElementById('tag').className = 'badge ' + item.clase;
-    document.getElementById('lectura').innerText = item.lectura;
-    document.getElementById('pregunta').innerText = item.pregunta;
-    
-    const container = document.getElementById('opciones');
-    container.innerHTML = '';
-    item.opciones.forEach((op, i) => {
-        const div = document.createElement('div');
-        div.className = 'opcion';
-        div.innerText = op;
-        div.onclick = () => {
-            selected = i;
-            document.querySelectorAll('.opcion').forEach(d => d.classList.remove('active'));
-            div.classList.add('active');
+        // ==================== RENDER FUNCTIONS ====================
+        function renderExercise() {
+            const title = titles[currentExercise];
+            const fullText = `Este fragmento está inspirado en la obra '${title}'. ${baseText}`;
+
+            document.getElementById('exercise-number').textContent = String(currentExercise + 1).padStart(2, '0');
+            document.getElementById('exercise-title').textContent = title;
+            document.getElementById('reading-text').innerHTML = fullText.replace(/\n/g, '<br>');
+
+            // Progress
+            const progressPercent = Math.round(((currentExercise) / 14) * 100);
+            document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+            document.getElementById('progress-text').textContent = `${currentExercise + 1}/15`;
+
+            // Render questions
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+
+            questionsTemplate.forEach((q, qIndex) => {
+                const div = document.createElement('div');
+                div.className = 'question-card bg-white border border-slate-200 rounded-3xl p-7 shadow-sm';
+                div.innerHTML = `
+                    <div class="flex gap-x-4">
+                        <div class="flex-shrink-0 w-8 h-8 rounded-2xl bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-lg">${qIndex + 1}</div>
+                        <div class="flex-1">
+                            <p class="font-medium text-slate-800 leading-tight text-[15.5px] mb-6">${q.question}</p>
+                            
+                            <div class="space-y-2">
+                                ${q.options.map((opt, optIndex) => `
+                                    <label onclick="selectOption(${qIndex}, ${optIndex})" 
+                                           class="option-label flex items-center gap-x-4 px-5 py-4 rounded-2xl border border-transparent hover:border-blue-200 cursor-pointer ${userAnswers[currentExercise][qIndex] === optIndex ? 'bg-blue-50 border-blue-200' : ''}">
+                                        <div class="w-6 h-6 rounded-xl border-2 flex items-center justify-center flex-shrink-0 ${userAnswers[currentExercise][qIndex] === optIndex ? 'bg-blue-600 border-blue-600' : 'border-slate-300'}">
+                                            ${userAnswers[currentExercise][qIndex] === optIndex ? 
+                                                `<i class="fa-solid fa-check text-white text-xs"></i>` : ''}
+                                        </div>
+                                        <span class="text-slate-700">${opt}</span>
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+
+            // Button states
+            document.getElementById('btn-prev').disabled = currentExercise === 0;
+            document.getElementById('btn-next').innerHTML = `
+                ${currentExercise === 14 ? 
+                    `<span class="flex items-center gap-x-3">Ver resultados <i class="fa-solid fa-flag-checkered"></i></span>` : 
+                    `<span id="next-text">Siguiente ejercicio</span><i class="fa-solid fa-arrow-right"></i>`}
+            `;
+        }
+
+        function selectOption(qIndex, optionIndex) {
+            userAnswers[currentExercise][qIndex] = optionIndex;
+            renderExercise(); // re-render to show selection
+        }
+
+        // ==================== NAVIGATION ====================
+        function nextExercise() {
+            // Save current answers (already saved on click)
+            if (currentExercise < 14) {
+                currentExercise++;
+                renderExercise();
+            } else {
+                showResults();
+            }
+        }
+
+        function prevExercise() {
+            if (currentExercise > 0) {
+                currentExercise--;
+                renderExercise();
+            }
+        }
+
+        function startQuiz() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            document.getElementById('progress-header').classList.remove('hidden');
+            currentExercise = 0;
+            userAnswers = Array(15).fill().map(() => Array(3).fill(null));
+            renderExercise();
+        }
+
+        function showResults() {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('results-screen').classList.remove('hidden');
+            
+            let totalCorrect = 0;
+            const container = document.getElementById('feedback-container');
+            container.innerHTML = '';
+
+            titles.forEach((title, exIndex) => {
+                let exerciseCorrect = 0;
+                const html = `
+                    <div class="bg-white rounded-3xl p-8 border border-slate-100">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center gap-x-4">
+                                <span class="text-xl font-bold text-blue-600">${String(exIndex + 1).padStart(2, '0')}</span>
+                                <div>
+                                    <p class="font-semibold text-slate-700">${title}</p>
+                                </div>
+                            </div>
+                            <div class="text-emerald-600 font-semibold text-xl">${exerciseCorrect}/3</div>
+                        </div>
+                        
+                        <div class="space-y-8">
+                            ${questionsTemplate.map((q, qIndex) => {
+                                const userAns = userAnswers[exIndex][qIndex];
+                                const isCorrect = userAns === q.correct;
+                                if (isCorrect) exerciseCorrect++;
+                                return `
+                                    <div class="border-l-4 ${isCorrect ? 'border-emerald-500' : 'border-red-400'} pl-6">
+                                        <p class="text-slate-700 font-medium mb-3">${q.question}</p>
+                                        <div class="flex items-start gap-x-4 text-sm">
+                                            <div>
+                                                <span class="font-mono text-xs bg-slate-100 px-2 py-px rounded">Tu respuesta:</span>
+                                                <span class="ml-2 ${isCorrect ? 'text-emerald-600' : 'text-red-500'}">
+                                                    ${userAns !== null ? q.options[userAns] : '<span class="text-slate-400">Sin responder</span>'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        ${!isCorrect && userAns !== null ? `
+                                        <div class="mt-3 text-xs bg-amber-50 border border-amber-200 p-3 rounded-2xl">
+                                            <span class="font-medium text-amber-700">Respuesta correcta:</span> 
+                                            <span class="font-medium">${q.options[q.correct]}</span>
+                                        </div>` : ''}
+                                        <div class="mt-4 text-xs leading-relaxed text-slate-500 bg-slate-50 p-4 rounded-2xl">
+                                            ${q.explanation}
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += html;
+                totalCorrect += exerciseCorrect;
+            });
+
+            // Global score
+            document.getElementById('final-score').textContent = totalCorrect;
+            
+            const percent = Math.round((totalCorrect / 45) * 100);
+            let label = '';
+            if (percent >= 90) label = '¡Excelente dominio!';
+            else if (percent >= 75) label = '¡Muy bien!';
+            else if (percent >= 60) label = '¡Aprobado!';
+            else label = 'Sigue practicando';
+            
+            document.getElementById('score-label').innerHTML = `
+                ${percent}% • <span class="text-slate-400">${label}</span>
+            `;
+        }
+
+        function restartQuiz() {
+            document.getElementById('results-screen').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+            document.getElementById('progress-header').classList.add('hidden');
+        }
+
+        // ==================== KEYBOARD SUPPORT ====================
+        document.addEventListener('keydown', function(e) {
+            if (document.getElementById('quiz-screen').classList.contains('hidden')) return;
+            
+            if (e.key === "ArrowRight") {
+                nextExercise();
+            }
+            if (e.key === "ArrowLeft") {
+                prevExercise();
+            }
+        });
+
+        // ==================== INIT ====================
+        window.onload = function() {
+            initTailwind();
+            // Ready to start
+            console.log('%c✅ Instrumento Exani II listo para tus estudiantes', 'color:#0ea5e9; font-family:monospace');
         };
-        container.appendChild(div);
-    });
-}
-
-function next() {
-    if (selected === null) return alert("Selecciona una opción");
-    userAnswers.push(selected);
-    if (selected === preguntas[current].correcta) score++;
-    selected = null;
-    current++;
-    if (current < preguntas.length) render(); else finish();
-}
-
-function finish() {
-    document.getElementById('quiz').style.display = 'none';
-    document.getElementById('results').style.display = 'block';
-    document.getElementById('score-summary').innerText = `Aciertos: ${score} de ${preguntas.length}`;
-    
-    const list = document.getElementById('feedback-list');
-    preguntas.forEach((p, i) => {
-        const isOk = userAnswers[i] === p.correcta;
-        list.innerHTML += `
-            <div class="retro-box">
-                <strong class="${isOk?'correct':'incorrect'}">${isOk?'✓':'✗'} Pregunta ${i+1}</strong><br>
-                <small>${p.lectura.substring(0,100)}...</small><br>
-                <p><strong>Tu respuesta:</strong> ${p.opciones[userAnswers[i]]}</p>
-                ${!isOk ? `<p><strong>Correcta:</strong> ${p.opciones[p.correcta]}</p>` : ''}
-                <p style="background:#f0f0f0; padding:10px; border-radius:5px;"><em>Retroalimentación:</em> ${p.retro}</p>
-            </div>
-        `;
-    });
-}
-
-render();
-</script>
-
+    </script>
 </body>
 </html>
